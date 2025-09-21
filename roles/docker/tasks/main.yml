@@ -1,0 +1,63 @@
+---
+# tasks file for docker
+- name: Install required packages
+  ansible.builtin.package:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - software-properties-common
+    state: present
+  when: ansible_os_family == "Debian"
+
+- name: Install required packages CentOS
+  yum:
+    name:
+      - yum-utils
+      - device-mapper-persistent-data
+      - lvm2
+    state: present
+  when: ansible_os_family == "RedHat"
+
+- name: Add Docker GPG key
+  ansible.builtin.apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+  when: ansible_os_family == "Debian"
+
+- name: Add Docker repository
+  ansible.builtin.apt_repository:
+    repo: "deb https://download.docker.com/linux/ubuntu focal stable"
+    state: present
+  when: ansible_os_family == "Debian"
+
+- name: Add Docker repository CentOS
+  ansible.builtin.yum_repository:
+    name: docker-ce
+    description: Docker CE stable repository
+    baseurl: https://download.docker.com/linux/centos/8/x86_64/stable
+    gpgcheck: yes
+    gpgkey: https://download.docker.com/linux/centos/gpg
+    enabled: yes
+  when: ansible_os_family == "RedHat"
+
+- name: Install Docker on CentOS
+  yum:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+    state: latest
+  when: ansible_os_family == "RedHat"
+
+- name: Install Docker
+  ansible.builtin.package:
+    name: docker.io
+    state: present
+  when: ansible_os_family == "Debian"
+
+- name: Start and enable Docker service
+  service:
+    name: docker
+    state: started
+    enabled: true

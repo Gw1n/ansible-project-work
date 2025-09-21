@@ -1,0 +1,11 @@
+- name: Install and start Docker on app-group servers
+  hosts: app
+  become: true
+  roles:
+    - docker
+
+- name: Install and start PostgreSQL on database-group server
+  hosts: database
+  become: true
+  roles:
+    - postgresql

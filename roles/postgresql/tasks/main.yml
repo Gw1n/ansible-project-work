@@ -1,0 +1,31 @@
+---
+# tasks file for postgresql
+- name: Install PostgreSQL
+  ansible.builtin.package:
+    name: "postgresql-{{ postgresql_version }}"
+    state: present
+
+- name: Ensure PostgreSQL service is started and enabled
+  ansible.builtin.service:
+    name: postgresql
+    state: started
+    enabled: true
+
+- name: Ensure data directory exists
+  ansible.builtin.file:
+    path: "{{ postgresql_data_dir }}"
+    state: directory
+    owner: postgres
+    group: postgres
+    mode: '0700'
+
+- name: Init PostgreSQL database
+  ansible.builtin.command:
+    argv:
+      - "/usr/lib/postgresql/{{ postgresql_version }}/bin/initdb"
+      - "-D"
+      - "{{ postgresql_data_dir }}/PG_VERSION"
+  args:
+    creates: "{{ postgresql_data_dir }}/PG_VERSION"
+  become: true
+  become_user: postgres
